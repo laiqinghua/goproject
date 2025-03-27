@@ -1,0 +1,5 @@
+[gmail]
+  user = "your@gmail.com"     # 替换为你的Gmail
+  password = "your_app_password" # Gmail应用密码
+  smtp_host = "smtp.gmail.com"
+  smtp_port = 587
