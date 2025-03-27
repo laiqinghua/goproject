@@ -22,15 +22,35 @@ var cfg MailConfig
 
 func init() {
 	// 加载配置文件
-	if _, err := toml.DecodeFile("../config/mail.toml", &cfg); err != nil {
-		log.Fatal("Mail config error: ", err)
-	}
+	// 从环境变量中读取配置
+    user := os.Getenv("GMAIL_USER")
+    password := os.Getenv("GMAIL_PASSWORD")
+    smtpHost := os.Getenv("GMAIL_SMTP_HOST")
+    smtpPortStr := os.Getenv("GMAIL_SMTP_PORT")
+
+    // 尝试将端口号转换为整数
+    smtpPort, err := strconv.Atoi(smtpPortStr)
+    if err != nil {
+        smtpPort = 0
+    }
+
+    // 检查是否所有参数都为空
+    if user == "" && password == "" && smtpHost == "" && smtpPort == 0 {
+        log.Println("Mail config error: All environment variables are empty.")
+    }
+
+    // 设置配置
+    cfg.Gmail.User = user
+    cfg.Gmail.Password = password
+    cfg.Gmail.SmtpHost = smtpHost
+    cfg.Gmail.SmtpPort = smtpPort
 }
 
 func SendMailHandler(c *fiber.Ctx) error {
 	type Request struct {
 		Title   string `json:"title"`
 		Content string `json:"content"`
+		ToEmail string `json:"to_email"`
 	}
 
 	var req Request
@@ -40,9 +60,9 @@ func SendMailHandler(c *fiber.Ctx) error {
 
 	// 发送邮件逻辑
 	auth := smtp.PlainAuth("", cfg.Gmail.User, cfg.Gmail.Password, cfg.Gmail.SmtpHost)
-	to := []string{"qinghualai@foxmail.com"}
+	to := []string{ToEmail}
 	msg := []byte(
-		"To: qinghualai@foxmail.com\r\n" +
+		"To: "+ToEmail+"\r\n" +
 		"Subject: " + req.Title + "\r\n" +
 		"\r\n" + req.Content + "\r\n")
 

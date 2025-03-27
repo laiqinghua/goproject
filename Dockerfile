@@ -40,5 +40,10 @@ RUN go build -tags netgo -ldflags '-extldflags "-static"' -o /app/main main.go
 FROM alpine:3.19
 RUN addgroup -S app && adduser -S app -G app
 WORKDIR /app
+ENV User="email.qq.com" \
+    Password="123456abc" \
+    SMTPHost="smtp.qq.com" \
+    SMTPPort="465" \
+    Receiver="email.qq.com
 COPY --from=builder --chmod=755 --chown=app:app /app/main .
 ENTRYPOINT ["/app/main"]
