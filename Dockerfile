@@ -1,11 +1,12 @@
 # 阶段1：构建
 FROM --platform=$BUILDPLATFORM golang:1.24 AS builder
 
-# 安装跨平台工具链
+# 安装交叉编译工具链（同时支持x86和ARM）
 RUN apt-get update && apt-get install -y \
     gcc-aarch64-linux-gnu \
     binutils-aarch64-linux-gnu \
-    gcc-x86-64-linux-gnu
+    gcc-x86-64-linux-gnu \
+    qemu-user-static
 
 # 动态设置编译环境
 ARG TARGETARCH
@@ -19,9 +20,9 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
         CXX=aarch64-linux-gnu-g++ \
         AR=aarch64-linux-gnu-ar; \
     else \
-      export CC=x86_64-linux-gnu-gcc \
-        CXX=x86_64-linux-gnu-g++ \
-        AR=x86_64-linux-gnu-ar; \
+      export CC=gcc \
+        CXX=g++ \
+        AR=ar; \
     fi
 
 # 编译
