@@ -3,7 +3,7 @@ package handlers
 import (
 	"log"
 	"net/smtp"
-	"os"
+	"strconv"
 
 	"github.com/BurntSushi/toml"
 	"github.com/gofiber/fiber/v2"
