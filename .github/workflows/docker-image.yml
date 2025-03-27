@@ -13,6 +13,9 @@ jobs:
         with:
           go-version: '1.21'  # 指定Go版本
 
+      - name: init Go mod
+        run: go mod tidy
+        
       - name: Build Go Binary
         run: go build -o main.go ./cmd/main  # 替换为你的主程序路径
 
