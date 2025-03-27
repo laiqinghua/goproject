@@ -1,19 +1,25 @@
 # 阶段1：构建
 FROM --platform=$BUILDPLATFORM golang:1.24 AS builder
 
-# 安装完整交叉编译工具链[3](@ref)
-RUN apt-get update && apt-get install -y \
-    gcc-aarch64-linux-gnu \
-    binutils-aarch64-linux-gnu \
-    libc6-dev-arm64-cross
+# 安装完整工具链（分离x86和ARM安装）
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+      apt-get update && apt-get install -y gcc; \
+    else \
+      apt-get update && apt-get install -y \
+        gcc-aarch64-linux-gnu \
+        binutils-aarch64-linux-gnu; \
+    fi
 
-# 动态接收参数（移除硬编码）
-ARG TARGETOS TARGETARCH
-ENV GOOS=$TARGETOS \
-    GOARCH=$TARGETARCH \
-    CGO_ENABLED=1 \
-    CC=aarch64-linux-gnu-gcc \
-    CXX=aarch64-linux-gnu-g++
+# 动态设置编译环境
+ARG TARGETARCH
+ENV GOARCH=$TARGETARCH \
+    CGO_ENABLED=1
+
+# 条件设置编译器
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+      export CC=aarch64-linux-gnu-gcc \
+        CXX=aarch64-linux-gnu-g++; \
+    fi
 
 # 编译
 WORKDIR /app
