@@ -1,21 +1,25 @@
 # 使用多阶段构建确保工具链完整
 FROM --platform=$BUILDPLATFORM golang:1.21 AS builder
 
-# 安装交叉编译依赖
-RUN apt-get update && apt-get install -y gcc-aarch64-linux-gnu gcc-x86-64-linux-gnu
+# 阶段1：构建（强制使用Go 1.24+）
+FROM golang:1.24 AS builder
 
-# 显式传递构建参数
+# 安装CGO依赖（根据基础镜像选择）
+RUN apt-get update && apt-get install -y gcc libc6-dev
+
+# 显式传递平台参数
 ARG TARGETOS=linux
 ARG TARGETARCH=amd64
 ENV GOOS=$TARGETOS \
     GOARCH=$TARGETARCH \
     CGO_ENABLED=1
+
+# 编译
 WORKDIR /app
 COPY . .
-ARG TARGETOS TARGETARCH  # 由 Buildx 自动注入
-RUN CGO_ENABLED=1 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o ./cmd/app main.go
+RUN go build -o /out/app main.go
 
-# 阶段2：生成最小化镜像
+# 阶段2：运行
 FROM alpine:latest
-COPY --from=builder ./cmd/app /usr/local/bin/app
-ENTRYPOINT ["/usr/local/bin/app"]
+COPY --from=builder /out/app /app
+ENTRYPOINT ["/app"]
