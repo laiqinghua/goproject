@@ -1,10 +1,15 @@
-# 阶段1：构建 Go 二进制（自动匹配目标平台）
-FROM --platform=$BUILDPLATFORM debian:bullseye AS builder
+# 使用多阶段构建确保工具链完整
+FROM --platform=$BUILDPLATFORM golang:1.21 AS builder
 
-RUN apt-get update && apt-get install -y \
-    gcc \
-    musl-dev \
-    && rm -rf /var/lib/apt/lists/*
+# 安装交叉编译依赖
+RUN apt-get update && apt-get install -y gcc-aarch64-linux-gnu gcc-x86-64-linux-gnu
+
+# 显式传递构建参数
+ARG TARGETOS=linux
+ARG TARGETARCH=amd64
+ENV GOOS=$TARGETOS \
+    GOARCH=$TARGETARCH \
+    CGO_ENABLED=1
 WORKDIR /app
 COPY . .
 ARG TARGETOS TARGETARCH  # 由 Buildx 自动注入
