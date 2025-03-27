@@ -31,11 +31,9 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          platforms: ${{ matrix.platform }}
-          push: true
-          tags: |
-            ${{ vars.DOCKERHUB_USERNAME }}/myproject:latest
-            ${{ vars.DOCKER_USERNAME }}/myproject:${{ github.sha }}
+        run: |
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --tag ${{ vars.DOCKER_USERNAME }}/myproject:latest \
+            --tag ${{ vars.DOCKER_USERNAME }}/myproject:${{ github.sha }} \
+            --push .
