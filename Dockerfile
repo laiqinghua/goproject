@@ -10,7 +10,7 @@ ARG TARGETOS TARGETARCH
 ENV GOOS=$TARGETOS \
     GOARCH=$TARGETARCH \
     CGO_ENABLED=1 \
-    CC=$${TARGETARCH}-linux-gnu-gcc  # 动态设置交叉编译器
+    CC=$${TARGETARCH}-linux-gnu-gcc  
 
 # 编译
 WORKDIR /app
