@@ -34,9 +34,11 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
 # 编译
 WORKDIR /app
 COPY . .
-RUN go build -tags netgo -ldflags '-extldflags "-static"' -o /app main.go
+RUN go build -tags netgo -ldflags '-extldflags "-static"' -o /app/main main.go
 
 # 阶段2：运行
 FROM alpine:3.19
-COPY --from=builder /app /app
-ENTRYPOINT ["/app"]
+RUN addgroup -S app && adduser -S app -G app
+WORKDIR /app
+COPY --from=builder --chmod=755 --chown=app:app /app/main .
+ENTRYPOINT ["/app/main"]
