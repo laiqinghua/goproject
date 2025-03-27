@@ -1,5 +1,4 @@
-# 使用多阶段构建确保工具链完整
-FROM --platform=$BUILDPLATFORM golang:1.21 AS builder
+
 
 # 阶段1：构建（强制使用Go 1.24+）
 FROM golang:1.24 AS builder
