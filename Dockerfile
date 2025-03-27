@@ -1,6 +1,10 @@
 # 阶段1：构建 Go 二进制（自动匹配目标平台）
-FROM --platform=$BUILDPLATFORM golang:1.21-alpine AS builder
-RUN apt-get update && apt-get install -y gcc musl-dev
+FROM --platform=$BUILDPLATFORM debian:bullseye AS builder
+
+RUN apt-get update && apt-get install -y \
+    gcc \
+    musl-dev \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY . .
 ARG TARGETOS TARGETARCH  # 由 Buildx 自动注入
