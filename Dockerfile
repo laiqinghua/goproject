@@ -1,27 +1,25 @@
+# 阶段1：构建
 FROM --platform=$BUILDPLATFORM golang:1.24 AS builder
 
 # 基础工具安装（所有架构都需要）
 RUN apt-get update && apt-get install -y \
     make \
     git \
-    qemu-user-static
-
-# 动态安装交叉编译工具链
-ARG TARGETARCH
-RUN if [ "$TARGETARCH" = "arm64" ]; then \
-        apt-get install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu; \
-    elif [ "$TARGETARCH" = "amd64" ]; then \
-        apt-get install -y gcc-x86-64-linux-gnu binutils-x86-64-linux-gnu; \
-    fi && \
+    qemu-user-static \
+    gcc-aarch64-linux-gnu \
+    binutils-aarch64-linux-gnu \
+    gcc-x86-64-linux-gnu \
+    binutils-x86-64-linux-gnu && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# 设置编译环境
+# 动态设置编译环境
+ARG TARGETARCH
 ENV GOOS=linux \
     GOARCH=$TARGETARCH \
     CGO_ENABLED=1
 
-# 动态设置编译器
+# 条件设置编译器
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
         export CC=aarch64-linux-gnu-gcc \
                CXX=aarch64-linux-gnu-g++ \
@@ -32,6 +30,7 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
                AR=ar; \
     fi
 
+# 编译
 WORKDIR /app
 COPY . .
 RUN go build -o /app main.go
