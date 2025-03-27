@@ -34,6 +34,6 @@ jobs:
         run: |
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
-            --tag ${{ vars.DOCKER_USERNAME }}/myproject:latest \
-            --tag ${{ vars.DOCKER_USERNAME }}/myproject:${{ github.sha }} \
+            --tag ${{ vars.DOCKERHUB_USERNAME }}/myproject:latest \
+            --tag ${{ vars.DOCKERHUB_USERNAME }}/myproject:${{ github.sha }} \
             --push .
