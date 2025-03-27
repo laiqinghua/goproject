@@ -6,6 +6,7 @@ import (
 )
 
 func main() {
+	fmt.println("welcome to my project")
 	app := fiber.New()
 
 	// 邮件发送路由
