@@ -1,22 +1,19 @@
 # 阶段1：构建
 FROM --platform=$BUILDPLATFORM golang:1.24 AS builder
 
-# 安装多架构编译工具链
+# 安装完整交叉编译工具链[3](@ref)
 RUN apt-get update && apt-get install -y \
-    gcc-aarch64-linux-gnu gcc-x86-64-linux-gnu
+    gcc-aarch64-linux-gnu \
+    binutils-aarch64-linux-gnu \
+    libc6-dev-arm64-cross
 
-# 动态接收平台参数
+# 动态接收参数（移除硬编码）
 ARG TARGETOS TARGETARCH
-# 移除错误的$$引用，改用直接变量传递
 ENV GOOS=$TARGETOS \
     GOARCH=$TARGETARCH \
-    CGO_ENABLED=1
-# 动态设置编译器（使用条件判断替代$$）
-RUN if [ "$TARGETARCH" = "arm64" ]; then \
-      export CC=aarch64-linux-gnu-gcc; \
-    else \
-      export CC=x86_64-linux-gnu-gcc; \
-    fi 
+    CGO_ENABLED=1 \
+    CC=aarch64-linux-gnu-gcc \
+    CXX=aarch64-linux-gnu-g++
 
 # 编译
 WORKDIR /app
