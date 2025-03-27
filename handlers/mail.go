@@ -1,4 +1,4 @@
-package allhandlers
+package handlers
 
 import (
 	"log"
