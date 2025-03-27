@@ -7,10 +7,16 @@ RUN apt-get update && apt-get install -y \
 
 # 动态接收平台参数
 ARG TARGETOS TARGETARCH
+# 移除错误的$$引用，改用直接变量传递
 ENV GOOS=$TARGETOS \
     GOARCH=$TARGETARCH \
-    CGO_ENABLED=1 \
-    CC=$${TARGETARCH}-linux-gnu-gcc  
+    CGO_ENABLED=1
+# 动态设置编译器（使用条件判断替代$$）
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+      export CC=aarch64-linux-gnu-gcc; \
+    else \
+      export CC=x86_64-linux-gnu-gcc; \
+    fi 
 
 # 编译
 WORKDIR /app
