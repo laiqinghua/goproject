@@ -22,7 +22,7 @@ var cfg MailConfig
 
 func init() {
 	// 加载配置文件
-	if _, err := toml.DecodeFile("config/mail.toml", &cfg); err != nil {
+	if _, err := toml.DecodeFile("../config/mail.toml", &cfg); err != nil {
 		log.Fatal("Mail config error: ", err)
 	}
 }
